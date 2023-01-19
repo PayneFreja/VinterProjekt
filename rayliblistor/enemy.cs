@@ -1,26 +1,21 @@
 using Raylib_cs;
 
-
-// Skapar en slumpgenerator och gör så att vi kan komma åt den med hjälp av variabeln "generator".
-
-// Slumpar ett heltal mellan 0 och det största heltal int kan innehålla
-
 public class enemy
 {
     public Rectangle rect;
     public Texture2D image;
 
-    //metod som skapar enemies
+    //metod som skapar zombies på en slumpmässig plats längs y axeln, med en rektangel på 100x100
     public enemy()
     {
         Random generator = new Random();
-        int x = generator.Next(936);
-        image = Raylib.LoadTexture("present.png");
-        rect = new Rectangle(x, 0, 64, 64);
+        int x = generator.Next(900);
+        image = Raylib.LoadTexture("zombie.png");
+        rect = new Rectangle(x, 0, 100, 100);
     }
 
 
-    //metod som ritar upp enemies
+    //metod som ritar upp själva bilden av zombiesarna
     public void Draw()
     {
         Raylib.DrawTexture(

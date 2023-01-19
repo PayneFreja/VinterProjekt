@@ -1,43 +1,45 @@
 ﻿using Raylib_cs;
 
 // Skapar ett fönster som är 1000 x 683px stort, döper den till Present fall
-Raylib.InitWindow(1000, 683, "present fall");
+Raylib.InitWindow(1000, 683, "Base Defender");
 
 // Sätter FPS till 60
 Raylib.SetTargetFPS(60);
 
-//
-Texture2D bkg = Raylib.LoadTexture("background.png");
+//Laddar in bakgrundsbilden
+Texture2D bkg = Raylib.LoadTexture("zombiebackground.png");
 
-//
-Texture2D snw = Raylib.LoadTexture("finalsnow.png");
+//Laddar in game over bilden
+Texture2D snw = Raylib.LoadTexture("zombiegameover.png");
 
 //Lista för enemies
 List<enemy> enemies = new List<enemy>();
 
-//Lista för liv
-List<heart> hearts = new List<heart>();
 
 // Skapar santa
 Santa santa = new Santa();
 
 //--------------------------------LOGIK--------------------------------//
 
+// Kollar hur bred och hög skärmen är som spelet ska köras på
 int screenWidht = Raylib.GetScreenWidth();
 int screenHeight = Raylib.GetScreenHeight();
 
+// Integers som skapar "score" och "life", de säger att kills ska starta som 0 och att liv ska börja som 1
+int kills = 0;
+int life = 1;
 
-
-// En int som skapar "score" och säger att den ska  och "life", 
-int score = 0;
-int life = 5;
-
-// En while loop som skapar en ny enemy (present) varje 2 sekunder och får dom att röra sig längst med y-axeln
+// Skapar variabler för tiden det mellan när fienderna (presenterna) skapas
 float timeBetweenEnemies = 2;
 float enemyTimer = timeBetweenEnemies;
+
+// En interger som säger att det ska ha skapats 10 fiender (presenter) innan svårigheten ökar
 int enemiesBetweenDifficulties = 10;
+
+// En bool som säger att påståendet game over är falskt
 bool gameOver = false;
 
+// While loop som hela spelet körs i sålänge life är större än 0
 while (!Raylib.WindowShouldClose())
 {
     while (gameOver == false)
@@ -56,7 +58,7 @@ while (!Raylib.WindowShouldClose())
                 enemies.Add(new enemy());
             }
         }
-
+        // if satser som för spelet svårare för varje 10 zombies som spawnar genom att sänka tiden emellan dem. 
         if (enemyTimer < 0)
         {
             enemyTimer = timeBetweenEnemies;
@@ -75,49 +77,50 @@ while (!Raylib.WindowShouldClose())
             timeBetweenEnemies = 0.5f;
         }
 
+        // flyttar zombiesarna en pixel varje frame
         foreach (enemy e in enemies)
         {
             e.rect.y++;
 
         }
 
+
         santa.Move();
+
+
         int l = 0;
+
         foreach (enemy it in enemies)
         {
             l += 1;
         }
+
+        //if sats som kollar ifall zombiesarna nuddar mannen, ifall dom nuddar mannen så dör dom och man får e kill
         if (l > 0)
         {
             if (Raylib.CheckCollisionRecs(santa.rect, enemies[0].rect))
             {
-                score += 1;
-                enemies.RemoveAll(e => e.rect.y >= santa.rect.y - 64);
+                kills += 1;
+                enemies.RemoveAll(e => e.rect.y >= santa.rect.y - 100);
             }
         }
 
 
-        // Läser av fönstrets höjd och tar bort dom som nuddar botten av skärmen
-        int removed = enemies.RemoveAll(e => e.rect.y > Raylib.GetScreenHeight() - 45);
+        // Läser av fönstrets höjd (minus 200) då zombiesarna kommit in i basen och om dom gör det så dör man och det blir game over
+        int removed = enemies.RemoveAll(e => e.rect.y > Raylib.GetScreenHeight() - 200);
 
+        // om en zombie blir removead pga att den kom in i basen så försvinner sitt liv och man dör
         if (removed > 0)
         {
             life--;
         }
-
-        if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE) && gameOver == true)
-        {
-            gameOver = false;
-        }
-
 
         //--------------------------------GRAFIK--------------------------------//
         Raylib.BeginDrawing();
         Raylib.ClearBackground(Color.WHITE);
         Raylib.DrawTexture(bkg, 0, 0, Color.WHITE);
 
-        Raylib.DrawText($"Score:{score}", 900, 45, 20, Color.BLACK);
-        Raylib.DrawText($"Life:{life}", 900, 75, 20, Color.BLACK);
+        Raylib.DrawText($"Kills:{kills}", 900, 35, 20, Color.BLACK);
 
         santa.Draw();
 
@@ -126,19 +129,7 @@ while (!Raylib.WindowShouldClose())
             e.Draw();
         }
 
-
-        /* if (life > 0)
-         {
-             if (removed > 0)
-             {
-                 life--;
-             }
-         }
-         else
-         {
-             Raylib.DrawTexture(snw, 341, 500, Color.WHITE);
-         }*/
-
+        // gör så att game over bilden kommer upp när man dör, koordinaterna centrerar bilde
         if (life <= 0)
         {
             gameOver = true;
