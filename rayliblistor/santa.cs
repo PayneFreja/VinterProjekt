@@ -10,13 +10,15 @@ public class Santa
     public Rectangle rect;
     public Texture2D image;
 
+    //metod som skapar mannen med koordinaterna nedan
     public Santa()
     {
-        image = Raylib.LoadTexture("bigsantaright.png");
+        image = Raylib.LoadTexture("man.png");
 
-        rect = new Rectangle(100, 570, 64, 64);
+        rect = new Rectangle(400, 400, 100, 100);
     }
 
+    //metod som ritar upp bilden av mannen
     public void Draw()
     {
         Raylib.DrawTexture(
@@ -27,6 +29,7 @@ public class Santa
             );
     }
 
+    // en metod som bestämmer hastigheten som mannen ska kunna röra sig med och if satser som gör så att mannen inte kan gå utanför skärmen
     public void Move()
     {
         float speed = 7;
@@ -38,19 +41,48 @@ public class Santa
         {
             rect.x -= 20;
         }
+        if (rect.y >= Raylib.GetScreenHeight() - 230)
+        {
+            rect.y -= 20;
+        }
+        if (rect.y <= 10)
+        {
+            rect.y += 20;
+        }
 
+        // is sats som körs ifall man trcker på knappen D på tangenbordet. då rör sig gubben med speed åt höger 
+        // samtidigt som detta byter även mannen rikting i bilden åt höger
         if (Raylib.IsKeyDown(KeyboardKey.KEY_D))
         {
             rect.x += speed;
-            image = Raylib.LoadTexture("bigsantaright.png");
+            image = Raylib.LoadTexture("man.png");
         }
+        // samma sak som åvan fast om man trycker på knappen A så rör sig gubben med speed åt vänster
+        // då byter mannen riktning i bilden åt vänster
+
         else if (Raylib.IsKeyDown(KeyboardKey.KEY_A))
         {
             rect.x -= speed;
-            image = Raylib.LoadTexture("bigsantaleft.png");
+            image = Raylib.LoadTexture("man2.png");
         }
 
+        //     else if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
+        //     {
+        //         rect.y -= speed;
+
+        //     }
+        //     else if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
+        //     {
+        //         rect.y += speed;
+
+        //     }
     }
+
+
+
+
+
+
 
 
 
