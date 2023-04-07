@@ -1,21 +1,16 @@
 using Raylib_cs;
 
-
-// Skapar en slumpgenerator och gör så att vi kan komma åt den med hjälp av variabeln "generator".
-
-// Slumpar ett heltal mellan 0 och det största heltal int kan innehålla
-
-public class Santa
+public class Zoey
 {
     public Rectangle rect;
     public Texture2D image;
 
     //metod som skapar mannen med koordinaterna nedan
-    public Santa()
+    public Zoey()
     {
-        image = Raylib.LoadTexture("man.png");
+        image = Raylib.LoadTexture("zoey.png");
 
-        rect = new Rectangle(400, 400, 100, 100);
+        rect = new Rectangle(10, 450, 100, 100);
     }
 
     //metod som ritar upp bilden av mannen
@@ -30,17 +25,18 @@ public class Santa
     }
 
     // en metod som bestämmer hastigheten som mannen ska kunna röra sig med och if satser som gör så att mannen inte kan gå utanför skärmen
+
     public void Move()
     {
-        float speed = 7;
+        float speed = 4;
         if (rect.x <= 0)
         {
             rect.x += 20;
         }
-        if (rect.x >= Raylib.GetScreenWidth() - 100)
-        {
-            rect.x -= 20;
-        }
+        // if (rect.x >= Raylib.GetScreenWidth() - 100)
+        // {
+        //     rect.x -= 20;
+        // }
         if (rect.y >= Raylib.GetScreenHeight() - 230)
         {
             rect.y -= 20;
@@ -55,36 +51,25 @@ public class Santa
         if (Raylib.IsKeyDown(KeyboardKey.KEY_D))
         {
             rect.x += speed;
-            image = Raylib.LoadTexture("man.png");
+
         }
-        // samma sak som åvan fast om man trycker på knappen A så rör sig gubben med speed åt vänster
-        // då byter mannen riktning i bilden åt vänster
 
         else if (Raylib.IsKeyDown(KeyboardKey.KEY_A))
         {
             rect.x -= speed;
-            image = Raylib.LoadTexture("man2.png");
+
         }
 
-        //     else if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
-        //     {
-        //         rect.y -= speed;
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_W))
+        {
+            rect.y -= speed;
 
-        //     }
-        //     else if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
-        //     {
-        //         rect.y += speed;
+        }
 
-        //     }
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_S))
+        {
+            rect.y += speed;
+
+        }
     }
-
-
-
-
-
-
-
-
-
-
 }
