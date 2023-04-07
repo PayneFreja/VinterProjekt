@@ -1,23 +1,54 @@
-﻿using Raylib_cs;
+﻿/*
+Göra så att gubben kan skjuta skott
+Skapa en klass för bullets
+Göra en lista för skotten så att man kan hänvisa till alla bullets i listan
+Göra så att skotten hamnar på samma x position som gubben och hitta y position som är i bra höjd
+Skapa delay mellan hur ofta man kan skjuta
+Göra så att skott som  hamnar utanför skärmen och de som träffar en zombie tas bort
+Göra så att zombiesarna tas bort (dör) när skotten träffat dom. 
+Sen när det funkar göra så att det krävs 3 skott per vanlig zombie för att den ska dö.
+Skapa en int som bestämmer hur mycket start ammo man har
+Sen använda den för att programmera in att för varje skott man skjuter så får minus ett ammo
+Göra en int som räknar kills och health på samma sätt
+Göra så att om zombiesarna nuddar gubben så tappar den 10 health, och om den dödar en zombie får den 1 kill
+Göra så att om gubben klarar sig till andra sidan av banan (skärmen) så tas man till nästa bana
+Göra så att gubbens x position sätts i början av skärmen igen. 
+
+
+*/
+
+
+global using System.Numerics;
+using Raylib_cs;
 
 // Skapar ett fönster som är 1000 x 683px stort, döper den till Present fall
-Raylib.InitWindow(1000, 683, "Base Defender");
+Raylib.InitWindow(1600, 900, "Base Defender");
 
 // Sätter FPS till 60
 Raylib.SetTargetFPS(60);
 
 //Laddar in bakgrundsbilden
-Texture2D bkg = Raylib.LoadTexture("zombiebackground.png");
+Texture2D bkg = Raylib.LoadTexture("background.png");
+Texture2D bkg2 = Raylib.LoadTexture("background2.png");
+Texture2D bkg3 = Raylib.LoadTexture("background3.png");
 
 //Laddar in game over bilden
 Texture2D snw = Raylib.LoadTexture("zombiegameover.png");
 
-//Lista för enemies
-List<enemy> enemies = new List<enemy>();
+Texture2D home = Raylib.LoadTexture("homepage.png");
+
+
+
+
+// //Lista för skotten
+// List<Bullet> bullets = new List<Bullet>();
 
 
 // Skapar santa
-Santa santa = new Santa();
+Zoey zoey = new Zoey();
+
+
+
 
 //--------------------------------LOGIK--------------------------------//
 
@@ -27,117 +58,278 @@ int screenHeight = Raylib.GetScreenHeight();
 
 // Integers som skapar "score" och "life", de säger att kills ska starta som 0 och att liv ska börja som 1
 int kills = 0;
-int life = 1;
+// int health = 100;
+int ammo = 30;
+
+// Sätter start delayen till 0
+double delay = 0f;
 
 // Skapar variabler för tiden det mellan när fienderna (presenterna) skapas
-float timeBetweenEnemies = 2;
+float timeBetweenEnemies = 5;
 float enemyTimer = timeBetweenEnemies;
 
 // En interger som säger att det ska ha skapats 10 fiender (presenter) innan svårigheten ökar
 int enemiesBetweenDifficulties = 10;
 
+
+
+
 // En bool som säger att påståendet game over är falskt
 bool gameOver = false;
+
+bool start = false;
+
+
+string currentScene = "first";
 
 // While loop som hela spelet körs i sålänge life är större än 0
 while (!Raylib.WindowShouldClose())
 {
-    while (gameOver == false)
+
+    if (start == false)
     {
 
-
-        enemyTimer -= Raylib.GetFrameTime();
-
-
-
-        if (Raylib.GetFrameTime() > 1200)
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
+            start = true;
+        }
+
+    }
+    else if (start == true)
+    {
+        if (gameOver == false)
+        {
+            enemyTimer -= Raylib.GetFrameTime();
+
+            if (Raylib.GetFrameTime() > 1200)
+            {
+                if (enemyTimer < 0)
+                {
+                    enemyTimer = 2f;
+                    enemies.Add(new enemy());
+                }
+            }
+            // if satser som för spelet svårare för varje 10 zombies som spawnar genom att sänka tiden emellan dem. 
             if (enemyTimer < 0)
             {
-                enemyTimer = 1.2f;
+                enemyTimer = timeBetweenEnemies;
                 enemies.Add(new enemy());
+                enemiesBetweenDifficulties--;
             }
-        }
-        // if satser som för spelet svårare för varje 10 zombies som spawnar genom att sänka tiden emellan dem. 
-        if (enemyTimer < 0)
-        {
-            enemyTimer = timeBetweenEnemies;
-            enemies.Add(new enemy());
-            enemiesBetweenDifficulties--;
-        }
 
-        if (enemiesBetweenDifficulties == 0)
-        {
-            timeBetweenEnemies *= 0.9f;
-            enemiesBetweenDifficulties = 10;
-        }
-
-        if (timeBetweenEnemies < 0.5)
-        {
-            timeBetweenEnemies = 0.5f;
-        }
-
-        // flyttar zombiesarna en pixel varje frame
-        foreach (enemy e in enemies)
-        {
-            e.rect.y++;
-
-        }
-
-
-        santa.Move();
-
-
-        int l = 0;
-
-        foreach (enemy it in enemies)
-        {
-            l += 1;
-        }
-
-        //if sats som kollar ifall zombiesarna nuddar mannen, ifall dom nuddar mannen så dör dom och man får e kill
-        if (l > 0)
-        {
-            if (Raylib.CheckCollisionRecs(santa.rect, enemies[0].rect))
+            if (enemiesBetweenDifficulties == 0)
             {
-                kills += 1;
-                enemies.RemoveAll(e => e.rect.y >= santa.rect.y - 100);
+                timeBetweenEnemies *= 0.9f;
+                enemiesBetweenDifficulties = 5;
             }
+
+            if (timeBetweenEnemies < 0.5)
+            {
+                timeBetweenEnemies = 0.5f;
+            }
+
+            // flyttar zombiesarna en pixel varje frame
+            foreach (enemy e in enemies)
+            {
+                Vector2 zpos = new Vector2(zoey.rect.x, zoey.rect.y);
+                Vector2 epos = new Vector2(e.rect.x, e.rect.y);
+
+                Vector2 diff = zpos - epos;
+                diff = Vector2.Normalize(diff);
+
+                e.rect.x += diff.X;
+                e.rect.y += diff.Y;
+
+
+            }
+
+            // flyttar skotten en pixel varje frame
+            // foreach (Bullet e in bullets)
+            // {
+            //     e.rect.x = e.rect.x + 5;
+            //     // Tar bort skotten som åker utanför fönstret
+
+            //     if (e.rect.x > Raylib.GetScreenWidth())
+            //     {
+            //         bullets.Remove(e);
+            //         break;
+            //     }
+            // }
+
+            if (zoey.rect.x > Raylib.GetScreenWidth())
+            {
+                zoey.rect.x = 10;
+
+            }
+
+
+
+            zoey.Move();
+
+
+            int l = 0;
+
+            foreach (enemy it in enemies)
+            {
+                l += 1;
+            }
+
+
+
+            // List<Bullet> bulletsToRemove = new List<Bullet>();
+
+
+            foreach (Bullet bullet in bullets)
+            {
+                foreach (enemy enemy in enemy.enemies)
+                {
+                    if (Raylib.CheckCollisionRecs(bullet.rect, enemy.rect))
+                    {
+                        // Lägger till bullets och enemies till listan för att tas bort
+                        bulletsToRemove.Add(bullet);
+                        kills++;
+                        enemy.health--;
+                        break;
+                    }
+                }
+            }
+            // Foreach loop som säger att följande ska gälla för varje enemy i listan enemies 
+            // foreach (enemy enemy in enemies)
+            // {
+            //     // if sats som kollar ifall gubben och någon av enemies i listan kolliderar med varandra. 
+            //     if (Raylib.CheckCollisionRecs(zoey.rect, enemy.rect))
+            //     {
+            //         // lägger till enemies i listan för att tas bort
+            //         enemiesToRemove.Add(enemy);
+            //         // tar bort ett liv
+            //         health -= 10;
+            //         break;
+            //     }
+            // }
+
+
+            // foreach (enemy enemy in enemies)
+            // {
+            //     if (enemy.health <= 0)
+            //     {
+            //         enemiesToRemove.Add(enemy);
+            //     }
+            // }
+
+            if (zoey.rect.x > Raylib.GetScreenWidth() && currentScene == "first")
+            {
+                zoey.rect.x = 10;
+                currentScene = "second";
+                foreach (enemy enemy in enemies)
+                {
+                    enemiesToRemove.Add(enemy);
+                }
+
+            }
+
+            if (zoey.rect.x > Raylib.GetScreenWidth() && currentScene == "second")
+            {
+                zoey.rect.x = 10;
+                currentScene = "third";
+                foreach (enemy enemy in enemies)
+                {
+                    enemiesToRemove.Add(enemy);
+                }
+
+            }
+
+            // Tar bort bullets utanför loopen
+            foreach (Bullet bullet in bulletsToRemove)
+            {
+                bullets.Remove(bullet);
+            }
+
+            foreach (enemy enemy in enemiesToRemove)
+            {
+                enemies.Remove(enemy);
+            }
+
+
+
+
+
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE) && Raylib.GetTime() >= delay)
+
+            {
+                Bullet bullet = new();
+                bullet.rect.x = zoey.rect.x + 270;
+                bullet.rect.y = zoey.rect.y + 70;
+                delay = Raylib.GetTime() + 2f;
+                bullets.Add(bullet);
+                ammo--;
+            }
+
+            if (health <= 0)
+            {
+                gameOver = true;
+            }
+
+            //--------------------------------GRAFIK--------------------------------//
         }
+    }
+    Raylib.BeginDrawing();
+    Raylib.ClearBackground(Color.WHITE);
 
+    if (start == false)
+    {
+        Raylib.DrawTexture(home, 0, 0, Color.WHITE);
 
-        // Läser av fönstrets höjd (minus 200) då zombiesarna kommit in i basen och om dom gör det så dör man och det blir game over
-        int removed = enemies.RemoveAll(e => e.rect.y > Raylib.GetScreenHeight() - 200);
-
-        // om en zombie blir removead pga att den kom in i basen så försvinner sitt liv och man dör
-        if (removed > 0)
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
-            life--;
+            start = true;
         }
 
-        //--------------------------------GRAFIK--------------------------------//
-        Raylib.BeginDrawing();
-        Raylib.ClearBackground(Color.WHITE);
-        Raylib.DrawTexture(bkg, 0, 0, Color.WHITE);
+    }
+    else
+    {
+
+        if (currentScene == "first")
+        {
+            Raylib.DrawTexture(bkg, 0, 0, Color.WHITE);
+        }
+        else if (currentScene == "second")
+        {
+            Raylib.DrawTexture(bkg2, 0, 0, Color.WHITE);
+        }
+
+        else if (currentScene == "third")
+        {
+            Raylib.DrawTexture(bkg3, 0, 0, Color.WHITE);
+        }
 
         Raylib.DrawText($"Kills:{kills}", 900, 35, 20, Color.BLACK);
+        Raylib.DrawText($"Health:{health}", 800, 35, 20, Color.BLACK);
+        Raylib.DrawText($"Ammo:{ammo}", 700, 35, 20, Color.BLACK);
 
-        santa.Draw();
+        zoey.Draw();
 
         foreach (enemy e in enemies)
         {
             e.Draw();
         }
 
-        // gör så att game over bilden kommer upp när man dör, koordinaterna centrerar bilde
-        if (life <= 0)
+
+        foreach (Bullet e in bullets)
         {
-            gameOver = true;
-            Raylib.DrawTexture(snw, screenWidht / 2 - snw.width / 2, screenHeight / 2 - snw.height / 2, Color.WHITE);
+            e.Draw();
+
         }
 
 
 
-        Raylib.EndDrawing();
+        // gör så att game over bilden kommer upp när man dör, koordinaterna centrerar bilde
+        if (gameOver == true)
+        {
+            Raylib.DrawTexture(snw, screenWidht / 2 - snw.width / 2, screenHeight / 2 - snw.height / 2, Color.WHITE);
+        }
+
     }
+
+    Raylib.EndDrawing();
+
 }
