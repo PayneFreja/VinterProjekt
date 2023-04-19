@@ -27,46 +27,4 @@ public class enemy
             Color.WHITE
             );
     }
-
-
-
-    // ------------------------------------------------------------------------
-    //Lista för enemies
-    public int health = 100;
-    public static List<enemy> enemies = new List<enemy>();
-    public static List<enemy> enemiesToRemove = new List<enemy>();
-
-    public static void deadenemy()
-    {
-        foreach (enemy enemy in enemies)
-        {
-            if (enemy.health <= 0)
-            {
-                enemiesToRemove.Add(enemy);
-            }
-        }
-    }
-
-    public static void attack()
-    {
-        foreach (enemy enemy in enemies)
-        {
-            // if sats som kollar ifall gubben och någon av enemies i listan kolliderar med varandra. 
-            if (Raylib.CheckCollisionRecs(zoey.rect, enemy.rect))
-            {
-                // lägger till enemies i listan för att tas bort
-                enemiesToRemove.Add(enemy);
-                // tar bort ett liv
-                health -= 10;
-                break;
-            }
-        }
-    }
-
-
-
-
-
-
-
 }
