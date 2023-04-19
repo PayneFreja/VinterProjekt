@@ -4,6 +4,8 @@ public class Zoey
 {
     public Rectangle rect;
     public Texture2D image;
+    public int health = 100;
+
 
     //metod som skapar mannen med koordinaterna nedan
     public Zoey()
@@ -11,9 +13,11 @@ public class Zoey
         image = Raylib.LoadTexture("zoey.png");
 
         rect = new Rectangle(10, 450, 100, 100);
+
+
     }
 
-    //metod som ritar upp bilden av mannen
+    //metod som ritar upp zoey
     public void Draw()
     {
         Raylib.DrawTexture(
@@ -25,7 +29,6 @@ public class Zoey
     }
 
     // en metod som bestämmer hastigheten som mannen ska kunna röra sig med och if satser som gör så att mannen inte kan gå utanför skärmen
-
     public void Move()
     {
         float speed = 4;
