@@ -4,25 +4,22 @@ public class Enemy
 {
     public Rectangle rect;
 
-    // en int som sätter enemy health till 2
-    public int health = 2;
-    public Texture2D image;
+    public int health = 2;   // en int som sätter enemy health till 2
+    public Texture2D image;  // texturen för enemy
+    public static float timeBetweenEnemies = 7; // en float som bestämmer antalet sekunder mellan att enemies ska skapas
+    public static float enemyTimer = 7; // antalet sekunder till den första enemyn skapas
+    public static int enemiesBetweenDifficulties = 5; // en int som bestämmer antalet enemies tills svårighetsgraden ökas.
 
-    public static float timeBetweenEnemies = 7;
-    public static float enemyTimer = 7;
-    public static int enemiesBetweenDifficulties = 5;
+    public static List<Enemy> enemies = new List<Enemy>(); // skapar en lista för enemies
+    public static List<Enemy> enemiesToRemove = new List<Enemy>(); // skapar en lista för enemies som ska tas bort
+    static int l = 0; // int som håller koll på antalet enemies
 
-    public static List<Enemy> enemies = new List<Enemy>();
-    public static List<Enemy> enemiesToRemove = new List<Enemy>();
-    static int l = 0;
-
-    // metod som spawner en enemy när enemytimer är lika med timebetweenenemies
-    public static void Spawn()
+    public static void Spawn() // metod som skapar en ny enemy
     {
-        if (enemyTimer < 0)
+        if (enemyTimer < 0) // if sats som kollar om enemytimer är mindre än noll. Nedanstående görs då.
         {
             enemyTimer = timeBetweenEnemies;
-            enemies.Add(new Enemy());
+            enemies.Add(new Enemy()); // skapar en ny enemy
         }
     }
 
@@ -31,39 +28,40 @@ public class Enemy
     // då sänks tiden mellan varje zombie. 
     // den fortsätter att sänka tiden mellan varje zombies tills tiden är 0.5. Alltså så är minimum 0.5 sekunder mellan varje zombie. 
 
-    public static void Difficulity()
+    public static void Difficulity() // metod som ökar svårigheten i spelet
     {
-        if (enemyTimer < 0)
+        if (enemyTimer < 0) // if-sats som kollar om enemytimer är mindre än noll. Nedanstående görs då.
         {
             enemyTimer = timeBetweenEnemies;
-            enemies.Add(new Enemy());
+            enemies.Add(new Enemy()); // skapar ny enemy
             enemiesBetweenDifficulties--;
         }
 
-        if (enemiesBetweenDifficulties == 0)
+        if (enemiesBetweenDifficulties == 0) // if-sats som kollar om inten enemiesbetweendifficulities är lika med noll. Nedanstående görs då. 
         {
-            timeBetweenEnemies *= 0.8f;
-            enemiesBetweenDifficulties = 5;
+            timeBetweenEnemies *= 0.8f; // gångrar timebetween enemies med o.8
+            enemiesBetweenDifficulties = 5; // säger att
         }
 
-        if (timeBetweenEnemies < 0.5)
+        if (timeBetweenEnemies < 0.5) // if-sats som kollar om timebetween enemies är mindre än 0.5. Nedanstående görs då.
         {
-            timeBetweenEnemies = 0.5f;
+            timeBetweenEnemies = 0.5f; // sätter timebetween enemies till 0.5. Så att spelet inte blir omöjligt.
         }
     }
-    public static void Dead()
+    public static void Dead() // metod som kollar ifall inten health är lägre än eller lika med 0, och isådanafall läggs dom till i listan av enemies som ska tas bort
     {
         foreach (Enemy e in enemies)
         {
             if (e.health <= 0)
             {
                 enemiesToRemove.Add(e);
-
+                Zoey.kills++;
             }
         }
     }
 
-    public static void Clear()
+
+    public static void Clear() // metod som tar bort enemies i listan enemiesToRemove
     {
         foreach (Enemy e in enemiesToRemove)
         {
@@ -71,15 +69,15 @@ public class Enemy
         }
     }
 
-    public static void Count()
+    public static void Count() // metod som räknar enemies
     {
-        foreach (Enemy it in enemies)
+        foreach (Enemy e in enemies) // foreach för varje enemy i enemies
         {
             l += 1;
         }
     }
 
-    public static void Direction(Zoey zoey)
+    public static void Direction(Zoey zoey) // en metod som bestämmer riktningen som enemies färdas i, mot zoey
     {
         foreach (Enemy e in enemies)
         {
@@ -100,7 +98,7 @@ public class Enemy
         foreach (Enemy e in Enemy.enemies)
         {
             //If sats som kollar ifall gubben och någon av enemies i listan kolliderar med varandra. 
-            if (Raylib.CheckCollisionRecs(zoey.rect, e.rect))
+            if (Game.CollisionCheck(zoey, e))
             {
                 //Lägger till enemies i listan för att tas bort
                 Enemy.enemiesToRemove.Add(e);
@@ -110,7 +108,7 @@ public class Enemy
         }
     }
 
-    public static void Update(Zoey zoey)
+    public static void Update(Zoey zoey) // kallar på alla enemys logik-metoder
     {
         Spawn();
         Difficulity();
@@ -120,19 +118,14 @@ public class Enemy
         Clear();
         Count();
     }
-
-    //metod som skapar zombies på en slumpmässig plats längs y axeln, med en rektangel på 500x200 px
-    public Enemy()
+    public Enemy()  //metod som skapar zombies på en slumpmässig plats längs y axeln, med en rektangel på 500x200 px
     {
         Random generator = new Random();
         int y = generator.Next(900);
         image = Raylib.LoadTexture("normalzombie.png");
         rect = new Rectangle(1500, y, 500, 200);
     }
-
-
-    //metod som gör så man kan rita upp enemies
-    public void Draw()
+    public void Draw()  //metod som gör så man kan rita upp enemies
     {
         Raylib.DrawTexture(
             image,
@@ -143,7 +136,7 @@ public class Enemy
 
     }
 
-    public static void DrawAll()
+    public static void DrawAll() // en metod som ritar alla enemies
     {
         foreach (Enemy e in enemies)
         {

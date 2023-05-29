@@ -6,8 +6,8 @@ public class Zoey
     public Texture2D image;
 
     // interger som bestämmer att zoeys health är 100 från början
-    public static int health = 100;
-    public static int kills = 0;
+    public static int health = 100; // int för zoeys health
+    public static int kills = 0; // int för kills 
 
     // en metod med if-satser som kollar om zoey går utanför skärmen och sedan flyttar hennes position 20 px åt andra hållet för att hålla henne innanför skärmen
     public void WallCollision()
@@ -60,7 +60,7 @@ public class Zoey
         }
     }
 
-    public void Update()
+    public void Update() // en metod som kallar på zoeys rörelse- och väggkollisionsmetoder
     {
         Move();
         WallCollision();
